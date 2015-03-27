@@ -45,12 +45,29 @@ public class ServerConnection {
     }
 
     //Open the inbox folder and get Message.
-    public void getMessage() {
+    public Message[] getMessage() {
         try {
             inbox = store.getFolder("Inbox");
             inbox.open(Folder.READ_ONLY);
+            int messageCount = inbox.getMessageCount();
+            //System.out.println("Total Messages " + messageCount);
+            int startMessage = 1;
+            int endMessage = messageCount;
+            Message[] messages = inbox.getMessages(startMessage, endMessage);
+            //System.out.println(messages.length);
+            return messages;
+            /*for (int i = 0; i < messageCount; i++) {
+                if (messages[i].getSubject() == null) {
+                    System.out.println("Null");
+                } else {
+                    System.out.println(messages[i].getSubject());
+                }
+            }*/
+
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, ex);
+            Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
     }
 
