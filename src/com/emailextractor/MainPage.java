@@ -1,15 +1,20 @@
 /**
- * This is the MainPage of Email Extractor. Here someone can search for emails, select deselect then, 
- * choose a download path for downloading attachment, creating CSV file, go to the browser and singing out.
- * 
+ * This is the MainPage of Email Extractor. Here someone can search for emails,
+ * select deselect then, choose a download path for downloading attachment,
+ * creating CSV file, go to the browser and singing out.
+ *
  */
 package com.emailextractor;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Address;
 import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.swing.JTable;
+import javax.mail.search.SearchTerm;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 /**
  *
@@ -20,9 +25,15 @@ public class MainPage extends javax.swing.JFrame {
     ServerConnection sc;
     private String userName;
     private Folder inbox;
+    private Message[] messages;
+    private SearchTerm searchCondition;
+    DefaultTableModel model;
+    private boolean flag = true;
+    private Thread thisThread;
 
     /**
      * Creates new form MainPage
+     *
      * @param sc
      * @param userName
      */
@@ -31,6 +42,7 @@ public class MainPage extends javax.swing.JFrame {
         this.userName = userName;
         this.sc = sc;
         initComponents();
+        model = (DefaultTableModel) mailListTable.getModel();
     }
 
     /**
@@ -52,13 +64,15 @@ public class MainPage extends javax.swing.JFrame {
         createCsvFileBtn = new javax.swing.JButton();
         downloadAttachmentBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        EmailListTable = new javax.swing.JTable();
+        mailListTable = new javax.swing.JTable();
         progressbar = new javax.swing.JLabel();
         emailAddressLable = new javax.swing.JLabel();
         signOutBtn = new javax.swing.JButton();
         emailAccountBtn = new javax.swing.JButton();
         emailRadioBtn = new javax.swing.JRadioButton();
         subjectRadioBtn = new javax.swing.JRadioButton();
+        stopBtn = new javax.swing.JButton();
+        getAllMailsBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Email Extractor 1.0");
@@ -70,6 +84,11 @@ public class MainPage extends javax.swing.JFrame {
 
         searchBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         searchBtn.setText("Search");
+        searchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBtnActionPerformed(evt);
+            }
+        });
 
         selectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         selectAllBtn.setText("Select All");
@@ -86,44 +105,11 @@ public class MainPage extends javax.swing.JFrame {
         downloadAttachmentBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         downloadAttachmentBtn.setText("Download Attachment");
 
-        EmailListTable.setAutoCreateRowSorter(true);
-        EmailListTable.setBackground(new java.awt.Color(204, 204, 204));
-        EmailListTable.setFont(new java.awt.Font("Times New Roman", 0, 24)); // NOI18N
-        EmailListTable.setModel(new javax.swing.table.DefaultTableModel(
+        mailListTable.setAutoCreateRowSorter(true);
+        mailListTable.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+        mailListTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {true, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "", "Subject", "Sender", "Date", "Attachment"
@@ -139,14 +125,16 @@ public class MainPage extends javax.swing.JFrame {
         }
 
     );
-    EmailListTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-    EmailListTable.getColumnModel().getColumn(0).setMinWidth(40);
-    EmailListTable.getColumnModel().getColumn(0).setMaxWidth(40);
-    EmailListTable.getColumnModel().getColumn(0).setPreferredWidth(40);
-    EmailListTable.getColumnModel().getColumn(4).setMinWidth(100);
-    EmailListTable.getColumnModel().getColumn(4).setMaxWidth(100);
-    EmailListTable.getColumnModel().getColumn(4).setPreferredWidth(100);
-    jScrollPane1.setViewportView(EmailListTable);
+    mailListTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    mailListTable.getColumnModel().getColumn(0).setMinWidth(40);
+    mailListTable.getColumnModel().getColumn(0).setMaxWidth(40);
+    mailListTable.getColumnModel().getColumn(0).setPreferredWidth(40);
+    mailListTable.getColumnModel().getColumn(4).setMaxWidth(100);
+    mailListTable.getColumnModel().getColumn(4).setPreferredWidth(100);
+    mailListTable.getColumnModel().getColumn(3).setMaxWidth(110);
+    mailListTable.getColumnModel().getColumn(3).setPreferredWidth(110);
+    mailListTable.setRowHeight(25);
+    jScrollPane1.setViewportView(mailListTable);
 
     progressbar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/com/emailextractor/signLogo.gif"))); // NOI18N
     progressbar.setVisible(false);
@@ -179,6 +167,23 @@ public class MainPage extends javax.swing.JFrame {
     subjectRadioBtn.setText("Search By Subjcet");
     subjectRadioBtn.setBorder(null);
 
+    stopBtn.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+    stopBtn.setText("Stop");
+    stopBtn.setVisible(false);
+    stopBtn.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            stopBtnActionPerformed(evt);
+        }
+    });
+
+    getAllMailsBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    getAllMailsBtn.setText("Get All Mails");
+    getAllMailsBtn.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            getAllMailsBtnActionPerformed(evt);
+        }
+    });
+
     javax.swing.GroupLayout ContainerLayout = new javax.swing.GroupLayout(Container);
     Container.setLayout(ContainerLayout);
     ContainerLayout.setHorizontalGroup(
@@ -186,7 +191,7 @@ public class MainPage extends javax.swing.JFrame {
         .addGroup(ContainerLayout.createSequentialGroup()
             .addContainerGap()
             .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(ContainerLayout.createSequentialGroup()
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerLayout.createSequentialGroup()
                     .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                         .addComponent(createCsvFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(deselectAllBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -195,7 +200,7 @@ public class MainPage extends javax.swing.JFrame {
                         .addComponent(emailAccountBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(chooseDownloadPathBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(jScrollPane1))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 774, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(ContainerLayout.createSequentialGroup()
                     .addComponent(emailRadioBtn)
                     .addGap(18, 18, 18)
@@ -206,9 +211,13 @@ public class MainPage extends javax.swing.JFrame {
                     .addComponent(searchText, javax.swing.GroupLayout.PREFERRED_SIZE, 456, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addComponent(searchBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 195, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(getAllMailsBtn)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                    .addComponent(stopBtn)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
                     .addComponent(progressbar)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(signOutBtn)))
             .addContainerGap())
     );
@@ -229,7 +238,9 @@ public class MainPage extends javax.swing.JFrame {
                 .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(searchText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(searchBtn)
-                    .addComponent(signOutBtn))
+                    .addComponent(signOutBtn)
+                    .addComponent(stopBtn)
+                    .addComponent(getAllMailsBtn))
                 .addComponent(progressbar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -253,9 +264,7 @@ public class MainPage extends javax.swing.JFrame {
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(layout.createSequentialGroup()
-            .addComponent(Container, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 0, Short.MAX_VALUE))
+        .addComponent(Container, javax.swing.GroupLayout.DEFAULT_SIZE, 971, Short.MAX_VALUE)
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -269,24 +278,64 @@ public class MainPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void signOutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signOutBtnActionPerformed
-            signOutBtn.setEnabled(false);
-            new Thread(){
-                public void run(){
-                    progressbar.setVisible(true);
-                    sc.signOut();
-                    progressbar.setVisible(false);
-                    dispose();
-                    LoginPage lp = new LoginPage();
-                    lp.setVisible(true);
-                    signOutBtn.setEnabled(true);
-                }
-            }.start();
+        signOutBtn.setEnabled(false);
+        new Thread() {
+            public void run() {
+                progressbar.setVisible(true);
+                sc.signOut();
+                progressbar.setVisible(false);
+                dispose();
+                LoginPage lp = new LoginPage();
+                lp.setVisible(true);
+                signOutBtn.setEnabled(true);
+            }
+        }.start();
     }//GEN-LAST:event_signOutBtnActionPerformed
+
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+
+
+    }//GEN-LAST:event_searchBtnActionPerformed
+
+    private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
+        thisThread.suspend();
+        progressbar.setVisible(false);
+        getAllMailsBtn.setEnabled(true);
+        searchBtn.setEnabled(true);
+        stopBtn.setVisible(false);
+    }//GEN-LAST:event_stopBtnActionPerformed
+
+    private void getAllMailsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getAllMailsBtnActionPerformed
+        getAllMailsBtn.setEnabled(false);
+        searchBtn.setEnabled(false);
+        stopBtn.setVisible(true);
+        model.setNumRows(0);
+        new Thread("getAllMailThread") {
+            public void run() {
+                thisThread = Thread.currentThread();
+                progressbar.setVisible(true);
+                messages = sc.getMessage();
+                //System.out.println(messages.length);
+                for (int i = messages.length - 1; i > 0; i--) {
+                    Message message = messages[i];
+                    try {
+                        model.insertRow(model.getRowCount(), new Object[]{new Boolean(false),
+                            message.getSubject(), message.getFrom()[0], message.getReceivedDate(), "null"});
+                    } catch (MessagingException ex) {
+                        Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                progressbar.setVisible(false);
+                getAllMailsBtn.setEnabled(true);
+                searchBtn.setEnabled(true);
+                stopBtn.setVisible(false);
+            }
+        }.start();
+    }//GEN-LAST:event_getAllMailsBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
-    private javax.swing.JTable EmailListTable;
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton chooseDownloadPathBtn;
     private javax.swing.JButton createCsvFileBtn;
@@ -295,12 +344,15 @@ public class MainPage extends javax.swing.JFrame {
     private javax.swing.JButton emailAccountBtn;
     private javax.swing.JLabel emailAddressLable;
     private javax.swing.JRadioButton emailRadioBtn;
+    private javax.swing.JButton getAllMailsBtn;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable mailListTable;
     private javax.swing.JLabel progressbar;
     private javax.swing.JButton searchBtn;
     private javax.swing.JTextField searchText;
     private javax.swing.JButton selectAllBtn;
     private javax.swing.JButton signOutBtn;
+    private javax.swing.JButton stopBtn;
     private javax.swing.JRadioButton subjectRadioBtn;
     // End of variables declaration//GEN-END:variables
 }

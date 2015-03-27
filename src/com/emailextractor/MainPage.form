@@ -28,10 +28,7 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <Component id="Container" min="-2" max="-2" attributes="0"/>
-              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
-          </Group>
+          <Component id="Container" alignment="0" pref="971" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
@@ -60,7 +57,7 @@
               <Group type="102" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" alignment="1" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
                               <Component id="createCsvFileBtn" max="32767" attributes="0"/>
                               <Component id="deselectAllBtn" alignment="0" max="32767" attributes="0"/>
@@ -70,22 +67,26 @@
                               <Component id="chooseDownloadPathBtn" alignment="0" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" min="-2" pref="774" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="emailRadioBtn" min="-2" max="-2" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="subjectRadioBtn" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="32767" attributes="0"/>
                           <Component id="emailAddressLable" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Group type="102" alignment="0" attributes="0">
+                      <Group type="102" attributes="0">
                           <Component id="searchText" min="-2" pref="456" max="-2" attributes="0"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="searchBtn" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="195" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="getAllMailsBtn" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="stopBtn" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace pref="50" max="32767" attributes="0"/>
                           <Component id="progressbar" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
                           <Component id="signOutBtn" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
@@ -115,6 +116,8 @@
                           <Component id="searchText" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="searchBtn" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="signOutBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="stopBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="getAllMailsBtn" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <Component id="progressbar" min="-2" pref="25" max="-2" attributes="0"/>
                   </Group>
@@ -155,6 +158,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Search"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="selectAllBtn">
           <Properties>
@@ -203,21 +209,18 @@
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
           <SubComponents>
-            <Component class="javax.swing.JTable" name="EmailListTable">
+            <Component class="javax.swing.JTable" name="mailListTable">
               <Properties>
-                <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                  <Color blue="cc" green="cc" red="cc" type="rgb"/>
-                </Property>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Times New Roman" size="24" style="0"/>
+                  <Font name="Times New Roman" size="12" style="0"/>
                 </Property>
                 <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-                  <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {true, null, null, null, null},&#xa;        {null, null, null, null, null}&#xa;    },&#xa;    new String [] {&#xa;        &quot;&quot;, &quot;Subject&quot;, &quot;Sender&quot;, &quot;Date&quot;, &quot;Attachment&quot;&#xa;    }&#xa;&#xa;)&#xa;{&#xa;    @Override&#xa;    public Class&lt;?&gt; getColumnClass(int column) {&#xa;        Object value=this.getValueAt(0,column);&#xa;        return (value==null?Object.class:value.getClass());&#xa;    }&#xa;}&#xa;&#xa;" type="code"/>
+                  <Connection code="new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;&quot;, &quot;Subject&quot;, &quot;Sender&quot;, &quot;Date&quot;, &quot;Attachment&quot;&#xa;    }&#xa;&#xa;)&#xa;{&#xa;    @Override&#xa;    public Class&lt;?&gt; getColumnClass(int column) {&#xa;        Object value=this.getValueAt(0,column);&#xa;        return (value==null?Object.class:value.getClass());&#xa;    }&#xa;}&#xa;&#xa;" type="code"/>
                 </Property>
               </Properties>
               <AuxValues>
-                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="EmailListTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);&#xa;EmailListTable.getColumnModel().getColumn(0).setMinWidth(40);&#xa;EmailListTable.getColumnModel().getColumn(0).setMaxWidth(40);&#xa;EmailListTable.getColumnModel().getColumn(0).setPreferredWidth(40);&#xa;EmailListTable.getColumnModel().getColumn(4).setMinWidth(100);&#xa;EmailListTable.getColumnModel().getColumn(4).setMaxWidth(100);&#xa;EmailListTable.getColumnModel().getColumn(4).setPreferredWidth(100);"/>
-                <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="EmailListTable.setAutoCreateRowSorter(true);"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="mailListTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);&#xa;mailListTable.getColumnModel().getColumn(0).setMinWidth(40);&#xa;mailListTable.getColumnModel().getColumn(0).setMaxWidth(40);&#xa;mailListTable.getColumnModel().getColumn(0).setPreferredWidth(40);&#xa;mailListTable.getColumnModel().getColumn(4).setMaxWidth(100);&#xa;mailListTable.getColumnModel().getColumn(4).setPreferredWidth(100);&#xa;mailListTable.getColumnModel().getColumn(3).setMaxWidth(110);&#xa;mailListTable.getColumnModel().getColumn(3).setPreferredWidth(110);&#xa;mailListTable.setRowHeight(25);"/>
+                <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="mailListTable.setAutoCreateRowSorter(true);"/>
               </AuxValues>
             </Component>
           </SubComponents>
@@ -296,6 +299,31 @@
               <Border info="null"/>
             </Property>
           </Properties>
+        </Component>
+        <Component class="javax.swing.JButton" name="stopBtn">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Times New Roman" size="12" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Stop"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="stopBtnActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="stopBtn.setVisible(false);"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JButton" name="getAllMailsBtn">
+          <Properties>
+            <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
+              <Font name="Times New Roman" size="14" style="0"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Get All Mails"/>
+          </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="getAllMailsBtnActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
