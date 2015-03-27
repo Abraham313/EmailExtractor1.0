@@ -8,13 +8,11 @@ package com.emailextractor;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.mail.Address;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.search.SearchTerm;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 /**
  *
@@ -191,16 +189,21 @@ public class MainPage extends javax.swing.JFrame {
         .addGroup(ContainerLayout.createSequentialGroup()
             .addContainerGap()
             .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerLayout.createSequentialGroup()
-                    .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(createCsvFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(deselectAllBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(selectAllBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(downloadAttachmentBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(emailAccountBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(chooseDownloadPathBtn, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGroup(ContainerLayout.createSequentialGroup()
+                    .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(ContainerLayout.createSequentialGroup()
+                            .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(selectAllBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(deselectAllBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(chooseDownloadPathBtn)
+                                .addComponent(createCsvFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(downloadAttachmentBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerLayout.createSequentialGroup()
+                            .addGap(0, 0, Short.MAX_VALUE)
+                            .addComponent(emailAccountBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 774, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 786, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(ContainerLayout.createSequentialGroup()
                     .addComponent(emailRadioBtn)
                     .addGap(18, 18, 18)
@@ -215,7 +218,7 @@ public class MainPage extends javax.swing.JFrame {
                     .addComponent(getAllMailsBtn)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(stopBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 50, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(progressbar)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(signOutBtn)))
@@ -264,7 +267,7 @@ public class MainPage extends javax.swing.JFrame {
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(Container, javax.swing.GroupLayout.DEFAULT_SIZE, 971, Short.MAX_VALUE)
+        .addComponent(Container, javax.swing.GroupLayout.DEFAULT_SIZE, 977, Short.MAX_VALUE)
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -318,9 +321,10 @@ public class MainPage extends javax.swing.JFrame {
                 //System.out.println(messages.length);
                 for (int i = messages.length - 1; i > 0; i--) {
                     Message message = messages[i];
+                    String attachment = isAttachment(message);
                     try {
                         model.insertRow(model.getRowCount(), new Object[]{new Boolean(false),
-                            message.getSubject(), message.getFrom()[0], message.getReceivedDate(), "null"});
+                            message.getSubject(), message.getFrom()[0], message.getReceivedDate(), attachment});
                     } catch (MessagingException ex) {
                         Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -333,6 +337,23 @@ public class MainPage extends javax.swing.JFrame {
         }.start();
     }//GEN-LAST:event_getAllMailsBtnActionPerformed
 
+    private String isAttachment(Message message) {
+        String subject;
+        String contentType = null;
+        try {
+            subject = message.getSubject();
+            contentType = message.getContentType();
+        } catch (MessagingException ex) {
+            Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (contentType.contains("multipart/MIXED")) {
+            return "Attachment";
+        } else if (contentType.contains("TEXT/PLAIN")) {
+            return "Null";
+        } else
+            return "Null";
+
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
