@@ -74,6 +74,7 @@ public class MainPage extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Email Extractor 1.0");
+        setResizable(false);
 
         Container.setBackground(new java.awt.Color(153, 153, 153));
         Container.setPreferredSize(new java.awt.Dimension(950, 550));
@@ -162,7 +163,7 @@ public class MainPage extends javax.swing.JFrame {
     subjectRadioBtn.setBackground(new java.awt.Color(153, 153, 153));
     buttonGroup1.add(subjectRadioBtn);
     subjectRadioBtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-    subjectRadioBtn.setText("Search By Subjcet");
+    subjectRadioBtn.setText("Search By Subject");
     subjectRadioBtn.setBorder(null);
 
     stopBtn.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
@@ -216,9 +217,9 @@ public class MainPage extends javax.swing.JFrame {
                     .addComponent(searchBtn)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(getAllMailsBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(stopBtn)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(stopBtn)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                     .addComponent(progressbar)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(signOutBtn)))
@@ -291,12 +292,12 @@ public class MainPage extends javax.swing.JFrame {
                 LoginPage lp = new LoginPage();
                 lp.setVisible(true);
                 signOutBtn.setEnabled(true);
+                
             }
         }.start();
     }//GEN-LAST:event_signOutBtnActionPerformed
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
-
 
     }//GEN-LAST:event_searchBtnActionPerformed
 
