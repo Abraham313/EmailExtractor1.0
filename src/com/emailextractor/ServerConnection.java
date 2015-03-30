@@ -8,12 +8,15 @@ package com.emailextractor;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.FetchProfile;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.UIDFolder.FetchProfileItem;
+import javax.mail.search.SearchTerm;
 
 import javax.swing.JOptionPane;
 
@@ -42,27 +45,35 @@ public class ServerConnection {
         session = Session.getDefaultInstance(props);
         store = session.getStore("imaps"); //Connecting to Store
         store.connect("imap.gmail.com", Email, Pass);
+        
     }
+    
+    public void closeInbox(){
+        if (inbox != null && inbox.isOpen()) {
+            try {
+                inbox.close(true);
+            } catch (MessagingException ex) {
+                Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+    
 
     //Open the inbox folder and get Message.
     public Message[] getMessage() {
         try {
             inbox = store.getFolder("Inbox");
             inbox.open(Folder.READ_ONLY);
-            int messageCount = inbox.getMessageCount();
-            //System.out.println("Total Messages " + messageCount);
-            int startMessage = 1;
-            int endMessage = messageCount;
-            Message[] messages = inbox.getMessages(startMessage, endMessage);
-            //System.out.println(messages.length);
+            int endMessage = inbox.getMessageCount();
+            Message[] messages = inbox.getMessages(1, endMessage);
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.ENVELOPE);
+            fp.add(FetchProfileItem.FLAGS);
+            fp.add(FetchProfileItem.CONTENT_INFO);
+            fp.add("X-mailer");
+            inbox.fetch(messages, fp);
+
             return messages;
-            /*for (int i = 0; i < messageCount; i++) {
-                if (messages[i].getSubject() == null) {
-                    System.out.println("Null");
-                } else {
-                    System.out.println(messages[i].getSubject());
-                }
-            }*/
 
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(null, ex);
@@ -101,6 +112,27 @@ public class ServerConnection {
                         email, pass);
             }
         });
+    }
+
+    public Message[] search(SearchTerm searchCondition) {
+        try {
+            inbox = store.getFolder("Inbox");
+            inbox.open(Folder.READ_ONLY);
+            int endMessage = inbox.getMessageCount();
+            Message[] foundMessages = inbox.search(searchCondition);
+            FetchProfile fp = new FetchProfile();
+            fp.add(FetchProfile.Item.ENVELOPE);
+            fp.add(FetchProfileItem.FLAGS);
+            fp.add(FetchProfileItem.CONTENT_INFO);
+            fp.add("X-mailer");
+            inbox.fetch(foundMessages, fp);
+            
+            return foundMessages;
+        } catch (MessagingException ex) {
+            Logger.getLogger(ServerConnection.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+        
     }
 
 }
