@@ -8,6 +8,7 @@ package com.emailextractor;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.mail.Address;
 import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -20,14 +21,16 @@ import javax.swing.table.DefaultTableModel;
  */
 public class MainPage extends javax.swing.JFrame {
 
-    ServerConnection sc;
-    private String userName;
+    private final ServerConnection sc;
+    private final String userName;
     private Folder inbox;
     private Message[] messages;
     private SearchTerm searchCondition;
-    DefaultTableModel model;
-    private boolean flag = true;
-    private Thread thisThread;
+    private final DefaultTableModel model;
+    private final boolean flag = true;
+    private Thread getAllMailThread;
+    private Message[] foundMessages;
+
 
     /**
      * Creates new form MainPage
@@ -217,9 +220,9 @@ public class MainPage extends javax.swing.JFrame {
                     .addComponent(searchBtn)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(getAllMailsBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(stopBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(progressbar)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(signOutBtn)))
@@ -292,17 +295,25 @@ public class MainPage extends javax.swing.JFrame {
                 LoginPage lp = new LoginPage();
                 lp.setVisible(true);
                 signOutBtn.setEnabled(true);
-                
+
             }
         }.start();
     }//GEN-LAST:event_signOutBtnActionPerformed
 
     private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
 
+        if (emailRadioBtn.isSelected() && !searchText.getText().equals("")) {
+            //System.out.println(searchText.getText());
+            searchByEmail(searchText.getText());
+        }
+        if (subjectRadioBtn.isSelected() && !searchText.getText().equals("")) {
+            //System.out.println(searchText.getText());
+            searchBySubject(searchText.getText());
+        }
     }//GEN-LAST:event_searchBtnActionPerformed
 
     private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
-        thisThread.suspend();
+        getAllMailThread.suspend();
         progressbar.setVisible(false);
         getAllMailsBtn.setEnabled(true);
         searchBtn.setEnabled(true);
@@ -316,7 +327,7 @@ public class MainPage extends javax.swing.JFrame {
         model.setNumRows(0);
         new Thread("getAllMailThread") {
             public void run() {
-                thisThread = Thread.currentThread();
+                getAllMailThread = Thread.currentThread();
                 progressbar.setVisible(true);
                 messages = sc.getMessage();
                 //System.out.println(messages.length);
@@ -337,25 +348,7 @@ public class MainPage extends javax.swing.JFrame {
             }
         }.start();
     }//GEN-LAST:event_getAllMailsBtnActionPerformed
-
-    private String isAttachment(Message message) {
-        String subject;
-        String contentType = null;
-        try {
-            subject = message.getSubject();
-            contentType = message.getContentType();
-        } catch (MessagingException ex) {
-            Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        if (contentType.contains("multipart/MIXED")) {
-            return "Attachment";
-        } else if (contentType.contains("TEXT/PLAIN")) {
-            return "Null";
-        } else
-            return "Null";
-
-    }
-
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -377,4 +370,118 @@ public class MainPage extends javax.swing.JFrame {
     private javax.swing.JButton stopBtn;
     private javax.swing.JRadioButton subjectRadioBtn;
     // End of variables declaration//GEN-END:variables
+
+    private void searchByEmail(final String searchStr) {
+        getAllMailsBtn.setEnabled(false);
+        searchBtn.setEnabled(false);
+        model.setNumRows(0);
+        new Thread("searchThread") {
+            public void run() {
+
+                progressbar.setVisible(true);
+                //System.out.println(searchStr);
+                searchCondition = new SearchTerm() {
+                    @Override
+                    public boolean match(Message message) {
+                        try {
+                            Address[] fromAddress = message.getFrom();
+                            if (fromAddress != null && fromAddress.length > 0) {
+                                if (fromAddress[0].toString().contains(searchStr)) {
+                                    return true;
+                                }
+                            }
+                        } catch (MessagingException ex) {
+                            ex.printStackTrace();
+                        }
+                        return false;
+                    }
+                };
+
+                showFoundMessage();
+
+                progressbar.setVisible(false);
+                getAllMailsBtn.setEnabled(true);
+                searchBtn.setEnabled(true);
+            }
+        }.start();
+    }
+
+    private void searchBySubject(final String searchStr) {
+        getAllMailsBtn.setEnabled(false);
+        searchBtn.setEnabled(false);
+        model.setNumRows(0);
+        new Thread("searchThread") {
+            public void run() {
+
+                progressbar.setVisible(true);
+                //System.out.println(searchStr);
+                searchCondition = new SearchTerm() {
+                    @Override
+                    public boolean match(Message message) {
+                        try {
+                            if (message.getSubject() != null) {
+                                if (message.getSubject().contains(searchStr)) {
+                                    return true;
+                                }
+                            }
+                        } catch (MessagingException ex) {
+                            ex.printStackTrace();
+                        }
+                        return false;
+                    }
+                };
+                showFoundMessage();
+
+                progressbar.setVisible(false);
+                getAllMailsBtn.setEnabled(true);
+                searchBtn.setEnabled(true);
+            }
+        }.start();
+    }
+
+    private void showFoundMessage() {
+        try {
+            //System.out.println("line 444");
+            sc.getMessage();
+            foundMessages = sc.inbox.search(searchCondition);
+            sc.closeInbox();
+            
+            //System.out.println(foundMessages.length);
+
+            for (int i = foundMessages.length-1; i>=0;  i--) {
+                Message message = foundMessages[i];
+                String attachment = isAttachment(message);
+                //System.out.println(message);
+                model.insertRow(model.getRowCount(), new Object[]{new Boolean(false),
+                    message.getSubject(), message.getFrom()[0], message.getReceivedDate(), attachment});
+            }
+        } catch (MessagingException ex) {
+            Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private String isAttachment(Message message) {
+        String subject;
+        String contentType = null;
+        try {
+            subject = message.getSubject();
+            contentType = message.getContentType();
+        } catch (MessagingException ex) {
+            Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (contentType.contains("multipart/MIXED")) {
+            if (contentType.contains("multipart/related")) {
+                return "Null";
+            } else if (contentType.contains("multipart/alternative")) {
+                return "Null";
+            } else if (contentType.contains("multipart/signed")) {
+                return "Null";
+            } else if (contentType.contains(" multipart/encrypted")) {
+                return "Null";
+            } else {
+                return "Attachment";
+            }
+        }
+        return null;
+    }
 }
