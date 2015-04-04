@@ -178,6 +178,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Select All"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selectAllBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="deselectAllBtn">
           <Properties>
@@ -186,6 +189,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Deselect All"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deselectAllBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="chooseDownloadPathBtn">
           <Properties>
@@ -194,6 +200,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Choose Download Path"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="chooseDownloadPathBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="createCsvFileBtn">
           <Properties>
@@ -202,6 +211,9 @@
             </Property>
             <Property name="text" type="java.lang.String" value="Create CSV File"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="createCsvFileBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="downloadAttachmentBtn">
           <Properties>

@@ -6,6 +6,7 @@
  */
 package com.emailextractor;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
@@ -13,6 +14,11 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.search.SearchTerm;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -27,10 +33,14 @@ public class MainPage extends javax.swing.JFrame {
     private Message[] messages;
     private SearchTerm searchCondition;
     private final DefaultTableModel model;
-    private final boolean flag = true;
     private Thread getAllMailThread;
     private Message[] foundMessages;
-
+    private JFileChooser chooser;
+    private String path = System.getProperty("user.home") + "\\Documents";
+    private Address sender = null;
+    private boolean csvBySubject=false;
+    private boolean csvBySender=false;
+    private boolean csvByDate=false;
 
     /**
      * Creates new form MainPage
@@ -94,15 +104,35 @@ public class MainPage extends javax.swing.JFrame {
 
         selectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         selectAllBtn.setText("Select All");
+        selectAllBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectAllBtnActionPerformed(evt);
+            }
+        });
 
         deselectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         deselectAllBtn.setText("Deselect All");
+        deselectAllBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deselectAllBtnActionPerformed(evt);
+            }
+        });
 
         chooseDownloadPathBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         chooseDownloadPathBtn.setText("Choose Download Path");
+        chooseDownloadPathBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                chooseDownloadPathBtnActionPerformed(evt);
+            }
+        });
 
         createCsvFileBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         createCsvFileBtn.setText("Create CSV File");
+        createCsvFileBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                createCsvFileBtnActionPerformed(evt);
+            }
+        });
 
         downloadAttachmentBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         downloadAttachmentBtn.setText("Download Attachment");
@@ -330,13 +360,18 @@ public class MainPage extends javax.swing.JFrame {
                 getAllMailThread = Thread.currentThread();
                 progressbar.setVisible(true);
                 messages = sc.getMessage();
-                //System.out.println(messages.length);
+                System.out.println(messages.length);
                 for (int i = messages.length - 1; i > 0; i--) {
                     Message message = messages[i];
                     String attachment = isAttachment(message);
                     try {
+                        if (message.getFrom().length > 0) {
+                            sender = message.getFrom()[0];
+                        } else {
+                            sender = null;
+                        }
                         model.insertRow(model.getRowCount(), new Object[]{new Boolean(false),
-                            message.getSubject(), message.getFrom()[0], message.getReceivedDate(), attachment});
+                            message.getSubject(), sender, message.getReceivedDate(), attachment});
                     } catch (MessagingException ex) {
                         Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -348,7 +383,54 @@ public class MainPage extends javax.swing.JFrame {
             }
         }.start();
     }//GEN-LAST:event_getAllMailsBtnActionPerformed
-    
+
+    private void selectAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllBtnActionPerformed
+        if (model.getRowCount() != 0) {
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0) != Boolean.TRUE) {
+                    model.setValueAt(Boolean.TRUE, i, 0);
+                }
+            }
+        }
+
+    }//GEN-LAST:event_selectAllBtnActionPerformed
+
+    private void deselectAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deselectAllBtnActionPerformed
+        if (model.getRowCount() != 0) {
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0) != Boolean.FALSE) {
+                    model.setValueAt(Boolean.FALSE, i, 0);
+                }
+            }
+        }        // TODO add your handling code here:
+    }//GEN-LAST:event_deselectAllBtnActionPerformed
+
+    private void chooseDownloadPathBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseDownloadPathBtnActionPerformed
+        chooser = new JFileChooser();
+        chooser.setCurrentDirectory(new java.io.File("."));
+        chooser.setDialogTitle("Choose path");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // disable the "All files" option.
+        chooser.setAcceptAllFileFilterUsed(false);
+        if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            path = chooser.getSelectedFile().toString();
+        }
+
+    }//GEN-LAST:event_chooseDownloadPathBtnActionPerformed
+
+    private void createCsvFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createCsvFileBtnActionPerformed
+        if (model.getRowCount() != 0) {
+            JCheckBox subjectBox = new JCheckBox("By Subject");
+            JCheckBox senderBox = new JCheckBox("By Sender");
+            JCheckBox Data = new JCheckBox("By Date");
+            String msg = "Choose header for creating csv file";
+            Object[] msgContent = {msg, subjectBox, senderBox, Data};
+            JOptionPane.showConfirmDialog(this, msgContent, "CSV", JOptionPane.OK_CANCEL_OPTION);
+            boolean remember = subjectBox.isSelected();
+        }
+
+
+    }//GEN-LAST:event_createCsvFileBtnActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JPanel Container;
     private javax.swing.ButtonGroup buttonGroup1;
@@ -445,10 +527,9 @@ public class MainPage extends javax.swing.JFrame {
             sc.getMessage();
             foundMessages = sc.inbox.search(searchCondition);
             sc.closeInbox();
-            
-            //System.out.println(foundMessages.length);
 
-            for (int i = foundMessages.length-1; i>=0;  i--) {
+            //System.out.println(foundMessages.length);
+            for (int i = foundMessages.length - 1; i >= 0; i--) {
                 Message message = foundMessages[i];
                 String attachment = isAttachment(message);
                 //System.out.println(message);
@@ -459,7 +540,7 @@ public class MainPage extends javax.swing.JFrame {
             Logger.getLogger(MainPage.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     private String isAttachment(Message message) {
         String subject;
         String contentType = null;
