@@ -6,7 +6,10 @@
  */
 package com.emailextractor;
 
-import java.util.Arrays;
+import au.com.bytecode.opencsv.CSVWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.mail.Address;
@@ -16,9 +19,7 @@ import javax.mail.MessagingException;
 import javax.mail.search.SearchTerm;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -38,9 +39,10 @@ public class MainPage extends javax.swing.JFrame {
     private JFileChooser chooser;
     private String path = System.getProperty("user.home") + "\\Documents";
     private Address sender = null;
-    private boolean csvBySubject=false;
-    private boolean csvBySender=false;
-    private boolean csvByDate=false;
+    private boolean csvBySubject = false;
+    private boolean csvBySender = false;
+    private boolean csvByDate = false;
+    private ArrayList<String> csvFile;
 
     /**
      * Creates new form MainPage
@@ -69,79 +71,53 @@ public class MainPage extends javax.swing.JFrame {
         Container = new javax.swing.JPanel();
         searchText = new javax.swing.JTextField();
         searchBtn = new javax.swing.JButton();
-        selectAllBtn = new javax.swing.JButton();
-        deselectAllBtn = new javax.swing.JButton();
-        chooseDownloadPathBtn = new javax.swing.JButton();
-        createCsvFileBtn = new javax.swing.JButton();
-        downloadAttachmentBtn = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         mailListTable = new javax.swing.JTable();
         progressbar = new javax.swing.JLabel();
         emailAddressLable = new javax.swing.JLabel();
         signOutBtn = new javax.swing.JButton();
-        emailAccountBtn = new javax.swing.JButton();
         emailRadioBtn = new javax.swing.JRadioButton();
         subjectRadioBtn = new javax.swing.JRadioButton();
         stopBtn = new javax.swing.JButton();
         getAllMailsBtn = new javax.swing.JButton();
+        jPanel2 = new javax.swing.JPanel();
+        emailAccountBtn = new javax.swing.JButton();
+        selectAllBtn = new javax.swing.JButton();
+        deselectAllBtn = new javax.swing.JButton();
+        createCsvFileBtn = new javax.swing.JButton();
+        openFolderBtn = new javax.swing.JButton();
+        chooseDownloadPathBtn = new javax.swing.JButton();
+        downloadAttachmentBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Email Extractor 1.0");
         setResizable(false);
 
-        Container.setBackground(new java.awt.Color(153, 153, 153));
+        Container.setBackground(new java.awt.Color(102, 102, 102));
         Container.setPreferredSize(new java.awt.Dimension(950, 550));
 
+        searchText.setBackground(new java.awt.Color(153, 153, 153));
         searchText.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
 
         searchBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
         searchBtn.setText("Search");
+        searchBtn.setFocusable(false);
+        searchBtn.setRequestFocusEnabled(false);
         searchBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 searchBtnActionPerformed(evt);
             }
         });
 
-        selectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        selectAllBtn.setText("Select All");
-        selectAllBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                selectAllBtnActionPerformed(evt);
-            }
-        });
-
-        deselectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        deselectAllBtn.setText("Deselect All");
-        deselectAllBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deselectAllBtnActionPerformed(evt);
-            }
-        });
-
-        chooseDownloadPathBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        chooseDownloadPathBtn.setText("Choose Download Path");
-        chooseDownloadPathBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                chooseDownloadPathBtnActionPerformed(evt);
-            }
-        });
-
-        createCsvFileBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        createCsvFileBtn.setText("Create CSV File");
-        createCsvFileBtn.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                createCsvFileBtnActionPerformed(evt);
-            }
-        });
-
-        downloadAttachmentBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-        downloadAttachmentBtn.setText("Download Attachment");
-
         mailListTable.setAutoCreateRowSorter(true);
+        mailListTable.setBackground(new java.awt.Color(51, 51, 51));
+        mailListTable.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204), 2), javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0))));
         mailListTable.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+        mailListTable.setForeground(new java.awt.Color(255, 255, 255));
         mailListTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-
+                {null, null, null, null, null},
+                {null, null, null, null, null}
             },
             new String [] {
                 "", "Subject", "Sender", "Date", "Attachment"
@@ -172,35 +148,44 @@ public class MainPage extends javax.swing.JFrame {
     progressbar.setVisible(false);
 
     emailAddressLable.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    emailAddressLable.setForeground(new java.awt.Color(255, 255, 255));
     emailAddressLable.setText(userName);
 
     signOutBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
     signOutBtn.setText("Sign Out");
+    signOutBtn.setFocusable(false);
+    signOutBtn.setRequestFocusEnabled(false);
     signOutBtn.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             signOutBtnActionPerformed(evt);
         }
     });
 
-    emailAccountBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
-    emailAccountBtn.setText("Email Account");
-
-    emailRadioBtn.setBackground(new java.awt.Color(153, 153, 153));
+    emailRadioBtn.setBackground(new java.awt.Color(102, 102, 102));
     buttonGroup1.add(emailRadioBtn);
     emailRadioBtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+    emailRadioBtn.setForeground(new java.awt.Color(255, 255, 255));
     emailRadioBtn.setSelected(true);
     emailRadioBtn.setText("Search By Email");
     emailRadioBtn.setBorder(null);
+    emailRadioBtn.setFocusPainted(false);
+    emailRadioBtn.setFocusable(false);
     emailRadioBtn.setRequestFocusEnabled(false);
 
-    subjectRadioBtn.setBackground(new java.awt.Color(153, 153, 153));
+    subjectRadioBtn.setBackground(new java.awt.Color(102, 102, 102));
     buttonGroup1.add(subjectRadioBtn);
     subjectRadioBtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+    subjectRadioBtn.setForeground(new java.awt.Color(255, 255, 255));
     subjectRadioBtn.setText("Search By Subject");
     subjectRadioBtn.setBorder(null);
+    subjectRadioBtn.setFocusPainted(false);
+    subjectRadioBtn.setFocusable(false);
+    subjectRadioBtn.setRequestFocusEnabled(false);
 
-    stopBtn.setFont(new java.awt.Font("Times New Roman", 0, 12)); // NOI18N
+    stopBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
     stopBtn.setText("Stop");
+    stopBtn.setFocusable(false);
+    stopBtn.setRequestFocusEnabled(false);
     stopBtn.setVisible(false);
     stopBtn.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -210,11 +195,114 @@ public class MainPage extends javax.swing.JFrame {
 
     getAllMailsBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
     getAllMailsBtn.setText("Get All Mails");
+    getAllMailsBtn.setFocusable(false);
+    getAllMailsBtn.setRequestFocusEnabled(false);
     getAllMailsBtn.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(java.awt.event.ActionEvent evt) {
             getAllMailsBtnActionPerformed(evt);
         }
     });
+
+    jPanel2.setBackground(new java.awt.Color(102, 102, 102));
+
+    emailAccountBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    emailAccountBtn.setText("Email Account");
+    emailAccountBtn.setFocusable(false);
+    emailAccountBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    emailAccountBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+
+    selectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    selectAllBtn.setText("Select All");
+    selectAllBtn.setFocusable(false);
+    selectAllBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    selectAllBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+    selectAllBtn.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            selectAllBtnActionPerformed(evt);
+        }
+    });
+
+    deselectAllBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    deselectAllBtn.setText("Deselect All");
+    deselectAllBtn.setFocusable(false);
+    deselectAllBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    deselectAllBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+    deselectAllBtn.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            deselectAllBtnActionPerformed(evt);
+        }
+    });
+
+    createCsvFileBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    createCsvFileBtn.setText("Create CSV File");
+    createCsvFileBtn.setFocusable(false);
+    createCsvFileBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    createCsvFileBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+    createCsvFileBtn.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            createCsvFileBtnActionPerformed(evt);
+        }
+    });
+
+    openFolderBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    openFolderBtn.setText("Open Folder");
+    openFolderBtn.setFocusable(false);
+    openFolderBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    openFolderBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+
+    chooseDownloadPathBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    chooseDownloadPathBtn.setText("Choose Download Path");
+    chooseDownloadPathBtn.setFocusable(false);
+    chooseDownloadPathBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    chooseDownloadPathBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+    chooseDownloadPathBtn.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            chooseDownloadPathBtnActionPerformed(evt);
+        }
+    });
+
+    downloadAttachmentBtn.setFont(new java.awt.Font("Times New Roman", 0, 14)); // NOI18N
+    downloadAttachmentBtn.setText("Download Attachment");
+    downloadAttachmentBtn.setFocusable(false);
+    downloadAttachmentBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+    downloadAttachmentBtn.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
+
+    javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+    jPanel2.setLayout(jPanel2Layout);
+    jPanel2Layout.setHorizontalGroup(
+        jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGap(0, 0, 0)
+            .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(emailAccountBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(selectAllBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(deselectAllBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(chooseDownloadPathBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(createCsvFileBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(openFolderBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(downloadAttachmentBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
+            .addGap(0, 0, 0))
+    );
+    jPanel2Layout.setVerticalGroup(
+        jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGap(0, 0, 0)
+            .addComponent(selectAllBtn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(deselectAllBtn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(chooseDownloadPathBtn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(createCsvFileBtn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(downloadAttachmentBtn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(openFolderBtn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(emailAccountBtn)
+            .addGap(0, 0, 0))
+    );
 
     javax.swing.GroupLayout ContainerLayout = new javax.swing.GroupLayout(Container);
     Container.setLayout(ContainerLayout);
@@ -224,20 +312,9 @@ public class MainPage extends javax.swing.JFrame {
             .addContainerGap()
             .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(ContainerLayout.createSequentialGroup()
-                    .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(ContainerLayout.createSequentialGroup()
-                            .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                .addComponent(selectAllBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(deselectAllBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(chooseDownloadPathBtn)
-                                .addComponent(createCsvFileBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(downloadAttachmentBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGap(0, 0, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerLayout.createSequentialGroup()
-                            .addGap(0, 0, Short.MAX_VALUE)
-                            .addComponent(emailAccountBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 786, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane1))
                 .addGroup(ContainerLayout.createSequentialGroup()
                     .addComponent(emailRadioBtn)
                     .addGap(18, 18, 18)
@@ -250,10 +327,10 @@ public class MainPage extends javax.swing.JFrame {
                     .addComponent(searchBtn)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(getAllMailsBtn)
+                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE)
+                    .addComponent(progressbar)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(stopBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(progressbar)
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                     .addComponent(signOutBtn)))
             .addContainerGap())
@@ -263,37 +340,27 @@ public class MainPage extends javax.swing.JFrame {
         .addGroup(ContainerLayout.createSequentialGroup()
             .addContainerGap()
             .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(ContainerLayout.createSequentialGroup()
-                    .addComponent(emailAddressLable)
-                    .addGap(15, 15, 15))
-                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerLayout.createSequentialGroup()
-                    .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(subjectRadioBtn)
-                        .addComponent(emailRadioBtn))
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
-            .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(searchText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(searchBtn)
-                    .addComponent(signOutBtn)
-                    .addComponent(stopBtn)
-                    .addComponent(getAllMailsBtn))
-                .addComponent(progressbar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(emailAddressLable)
+                .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(subjectRadioBtn)
+                    .addComponent(emailRadioBtn)))
+            .addGap(10, 10, 10)
             .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(ContainerLayout.createSequentialGroup()
-                    .addComponent(selectAllBtn)
+                    .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(searchText, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(searchBtn)
+                            .addComponent(signOutBtn)
+                            .addComponent(getAllMailsBtn))
+                        .addComponent(stopBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(deselectAllBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(chooseDownloadPathBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(createCsvFileBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                    .addComponent(downloadAttachmentBtn)
-                    .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(emailAccountBtn))
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE))
+                    .addGroup(ContainerLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addGroup(ContainerLayout.createSequentialGroup()
+                    .addComponent(progressbar, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
             .addContainerGap())
     );
 
@@ -301,7 +368,7 @@ public class MainPage extends javax.swing.JFrame {
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addComponent(Container, javax.swing.GroupLayout.DEFAULT_SIZE, 977, Short.MAX_VALUE)
+        .addComponent(Container, javax.swing.GroupLayout.DEFAULT_SIZE, 997, Short.MAX_VALUE)
     );
     layout.setVerticalGroup(
         layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -342,14 +409,6 @@ public class MainPage extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_searchBtnActionPerformed
 
-    private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
-        getAllMailThread.suspend();
-        progressbar.setVisible(false);
-        getAllMailsBtn.setEnabled(true);
-        searchBtn.setEnabled(true);
-        stopBtn.setVisible(false);
-    }//GEN-LAST:event_stopBtnActionPerformed
-
     private void getAllMailsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_getAllMailsBtnActionPerformed
         getAllMailsBtn.setEnabled(false);
         searchBtn.setEnabled(false);
@@ -360,7 +419,7 @@ public class MainPage extends javax.swing.JFrame {
                 getAllMailThread = Thread.currentThread();
                 progressbar.setVisible(true);
                 messages = sc.getMessage();
-                System.out.println(messages.length);
+                //System.out.println(messages.length);
                 for (int i = messages.length - 1; i > 0; i--) {
                     Message message = messages[i];
                     String attachment = isAttachment(message);
@@ -384,16 +443,13 @@ public class MainPage extends javax.swing.JFrame {
         }.start();
     }//GEN-LAST:event_getAllMailsBtnActionPerformed
 
-    private void selectAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllBtnActionPerformed
-        if (model.getRowCount() != 0) {
-            for (int i = 0; i < model.getRowCount(); i++) {
-                if (model.getValueAt(i, 0) != Boolean.TRUE) {
-                    model.setValueAt(Boolean.TRUE, i, 0);
-                }
-            }
-        }
-
-    }//GEN-LAST:event_selectAllBtnActionPerformed
+    private void stopBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_stopBtnActionPerformed
+        getAllMailThread.suspend();
+        progressbar.setVisible(false);
+        getAllMailsBtn.setEnabled(true);
+        searchBtn.setEnabled(true);
+        stopBtn.setVisible(false);
+    }//GEN-LAST:event_stopBtnActionPerformed
 
     private void deselectAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deselectAllBtnActionPerformed
         if (model.getRowCount() != 0) {
@@ -405,6 +461,16 @@ public class MainPage extends javax.swing.JFrame {
         }        // TODO add your handling code here:
     }//GEN-LAST:event_deselectAllBtnActionPerformed
 
+    private void selectAllBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllBtnActionPerformed
+        if (model.getRowCount() != 0) {
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0) != Boolean.TRUE) {
+                    model.setValueAt(Boolean.TRUE, i, 0);
+                }
+            }
+        }
+    }//GEN-LAST:event_selectAllBtnActionPerformed
+
     private void chooseDownloadPathBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chooseDownloadPathBtnActionPerformed
         chooser = new JFileChooser();
         chooser.setCurrentDirectory(new java.io.File("."));
@@ -414,21 +480,27 @@ public class MainPage extends javax.swing.JFrame {
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             path = chooser.getSelectedFile().toString();
         }
-
     }//GEN-LAST:event_chooseDownloadPathBtnActionPerformed
 
     private void createCsvFileBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_createCsvFileBtnActionPerformed
         if (model.getRowCount() != 0) {
+            csvBySubject = false;
+            csvBySender = false;
+            csvByDate = false;
             JCheckBox subjectBox = new JCheckBox("By Subject");
             JCheckBox senderBox = new JCheckBox("By Sender");
-            JCheckBox Data = new JCheckBox("By Date");
+            JCheckBox dateBox = new JCheckBox("By Date");
             String msg = "Choose header for creating csv file";
-            Object[] msgContent = {msg, subjectBox, senderBox, Data};
-            JOptionPane.showConfirmDialog(this, msgContent, "CSV", JOptionPane.OK_CANCEL_OPTION);
-            boolean remember = subjectBox.isSelected();
+            Object[] msgContent = {msg, subjectBox, senderBox, dateBox};
+            int res = JOptionPane.showConfirmDialog(this, msgContent, "CSV", JOptionPane.OK_CANCEL_OPTION);
+            csvBySubject = subjectBox.isSelected();
+            csvBySender = senderBox.isSelected();
+            csvByDate = dateBox.isSelected();
+            if (res == 0 && csvBySubject != false || csvBySender != false || csvByDate != false) {
+
+                createCSV();
+            }
         }
-
-
     }//GEN-LAST:event_createCsvFileBtnActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -442,8 +514,10 @@ public class MainPage extends javax.swing.JFrame {
     private javax.swing.JLabel emailAddressLable;
     private javax.swing.JRadioButton emailRadioBtn;
     private javax.swing.JButton getAllMailsBtn;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable mailListTable;
+    private javax.swing.JButton openFolderBtn;
     private javax.swing.JLabel progressbar;
     private javax.swing.JButton searchBtn;
     private javax.swing.JTextField searchText;
@@ -564,5 +638,33 @@ public class MainPage extends javax.swing.JFrame {
             }
         }
         return null;
+    }
+
+    private void createCSV() {
+
+        csvFile = new ArrayList<>();
+        boolean flag = false;
+
+        if (csvBySubject) {
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if (model.getValueAt(i, 0) == Boolean.TRUE) {
+                    flag = true;
+                    csvFile.add((String) model.getValueAt(i, 1));
+                }
+            }
+        }
+        if (flag == true) {
+            try {
+                String csv = path + "//data.csv";
+                try (CSVWriter writer = new CSVWriter(new FileWriter(csv))) {
+                    writer.writeNext(csvFile.toArray(new String[]{}));
+                    writer.flush();
+                }
+                JOptionPane.showMessageDialog(this, "Successfuly CSV file Created");
+            } catch (IOException ex) {
+                JOptionPane.showMessageDialog(this, "CSV file creating error");
+            }
+        }
+
     }
 }
