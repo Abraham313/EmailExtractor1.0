@@ -60,34 +60,55 @@ public class LoginPage extends javax.swing.JFrame {
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setTitle("Sign in to Email");
+        setTitle("Sign in to Account");
         setBackground(new java.awt.Color(255, 102, 204));
+        setIconImages(null);
         setResizable(false);
 
-        containerPanel.setBackground(new java.awt.Color(153, 153, 153));
+        containerPanel.setBackground(new java.awt.Color(102, 102, 102));
 
-        lable1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        lable1.setFont(new java.awt.Font("Vani", 1, 18)); // NOI18N
+        lable1.setForeground(new java.awt.Color(255, 255, 255));
         lable1.setText("Email");
 
-        label2.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        label2.setFont(new java.awt.Font("Vani", 1, 18)); // NOI18N
+        label2.setForeground(new java.awt.Color(255, 255, 255));
         label2.setText("Password");
 
+        emailTextField.setBackground(new java.awt.Color(204, 204, 204));
         emailTextField.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        emailTextField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
 
+        passwordTextField.setBackground(new java.awt.Color(204, 204, 204));
         passwordTextField.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        passwordTextField.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
+        passwordTextField.setCaretColor(new java.awt.Color(153, 153, 153));
 
-        signInBtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        signInBtn.setBackground(new java.awt.Color(102, 102, 102));
+        signInBtn.setFont(signInBtn.getFont().deriveFont(signInBtn.getFont().getStyle() & ~java.awt.Font.BOLD, signInBtn.getFont().getSize()+5));
+        signInBtn.setForeground(new java.awt.Color(255, 255, 255));
         signInBtn.setText("Sign in");
         signInBtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        signInBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.DEFAULT_CURSOR));
+        signInBtn.setFocusPainted(false);
+        signInBtn.setFocusable(false);
+        signInBtn.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        signInBtn.setRequestFocusEnabled(false);
         signInBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 signInBtnActionPerformed(evt);
             }
         });
 
-        helpBtn.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        helpBtn.setBackground(new java.awt.Color(102, 102, 102));
+        helpBtn.setFont(helpBtn.getFont().deriveFont(helpBtn.getFont().getStyle() & ~java.awt.Font.BOLD, helpBtn.getFont().getSize()+5));
+        helpBtn.setForeground(new java.awt.Color(255, 255, 255));
         helpBtn.setText("Help");
         helpBtn.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        helpBtn.setFocusable(false);
+        helpBtn.setMaximumSize(new java.awt.Dimension(55, 28));
+        helpBtn.setMinimumSize(new java.awt.Dimension(55, 28));
+        helpBtn.setRequestFocusEnabled(false);
         helpBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 helpBtnActionPerformed(evt);
@@ -98,6 +119,7 @@ public class LoginPage extends javax.swing.JFrame {
         gifImage.setVisible(false);
 
         gifImageLable.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        gifImageLable.setForeground(new java.awt.Color(255, 255, 255));
         gifImageLable.setText("Signing in...");
         gifImageLable.setVisible(false);
 
@@ -106,7 +128,7 @@ public class LoginPage extends javax.swing.JFrame {
         containerPanelLayout.setHorizontalGroup(
             containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(containerPanelLayout.createSequentialGroup()
-                .addContainerGap(37, Short.MAX_VALUE)
+                .addContainerGap(29, Short.MAX_VALUE)
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(gifImageLable)
                     .addComponent(gifImage)
@@ -114,37 +136,36 @@ public class LoginPage extends javax.swing.JFrame {
                         .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(lable1)
                             .addComponent(label2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(containerPanelLayout.createSequentialGroup()
-                                .addComponent(signInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(9, 9, 9)
-                                .addComponent(helpBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(emailTextField)
-                                .addComponent(passwordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(emailTextField)
+                            .addComponent(passwordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 252, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, containerPanelLayout.createSequentialGroup()
+                                .addComponent(signInBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(helpBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)))))
                 .addGap(31, 31, 31))
         );
         containerPanelLayout.setVerticalGroup(
             containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(containerPanelLayout.createSequentialGroup()
-                .addGap(42, 42, 42)
+                .addGap(52, 52, 52)
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lable1)
-                    .addComponent(emailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(emailTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(label2)
-                    .addComponent(passwordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
-                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(signInBtn)
-                    .addComponent(helpBtn))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 74, Short.MAX_VALUE)
+                    .addComponent(passwordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(containerPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(helpBtn, javax.swing.GroupLayout.DEFAULT_SIZE, 36, Short.MAX_VALUE)
+                    .addComponent(signInBtn, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(35, 35, 35)
                 .addComponent(gifImageLable)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(gifImage)
-                .addGap(22, 22, 22))
+                .addGap(74, 74, 74))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -162,24 +183,28 @@ public class LoginPage extends javax.swing.JFrame {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
+    private void helpBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpBtnActionPerformed
+        JOptionPane.showMessageDialog(this, "If this is your first sign in to your account \nYou have to chagne some settings from your account \ngo to your email account from a browser \nand change the settings.");        // TODO add your handling code here:
+    }//GEN-LAST:event_helpBtnActionPerformed
+
     private void signInBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_signInBtnActionPerformed
-        
+
         //Get the email and Password from Text field
         userName = emailTextField.getText();
         password = passwordTextField.getPassword().toString();
-        
+
         if (userName != null && password != null) {
-            
-            signInBtn.setEnabled(false); 
+
+            signInBtn.setEnabled(false);
             gifImage.setVisible(true);
             gifImageLable.setVisible(true);
-            
+
             /* Running a Thread that will work for connecting to IMAP server. If connection successfull
-               Then MainPage will open. If not then the loging Page will reopen. 
+            Then MainPage will open. If not then the loging Page will reopen.
             */
             try {
                 new Thread() {
-                    public void run() { 
+                    public void run() {
                         ServerConnection sc = new ServerConnection();
                         try {
                             sc.connectToServer(emailTextField.getText().toString(), new String(passwordTextField.getPassword()));
@@ -195,7 +220,7 @@ public class LoginPage extends javax.swing.JFrame {
                             lp.setVisible(true);
                         } finally {
                             signInBtn.setEnabled(true);
-                            dispose(); //finish the loginpage 
+                            dispose(); //finish the loginpage
                         }
                     }
                 }.start();
@@ -205,10 +230,6 @@ public class LoginPage extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_signInBtnActionPerformed
-
-    private void helpBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_helpBtnActionPerformed
-        JOptionPane.showMessageDialog(this, "If this is your first sign in to your account \nYou have to chagne some settings from your account \ngo to your email account from a browser \nand change the settings.");        // TODO add your handling code here:
-    }//GEN-LAST:event_helpBtnActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
